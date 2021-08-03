@@ -58,7 +58,7 @@ if __name__ == '__main__':
             thread_list.append(threading.Thread(target=printer_update_async, args=(printer, ), daemon=True))
             thread_list[index].start()
 
-    # Create thread for API handler
+    # Create thread for Flask API handler
     api_thread = threading.Thread(target=api_handler.run, daemon=True)
     api_thread.start()
 
@@ -69,5 +69,4 @@ if __name__ == '__main__':
 
         app.update_texts()
 
-# TODO: Add flask server for API
         watcher.update()
