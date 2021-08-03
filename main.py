@@ -5,6 +5,7 @@ import threading
 from printer import Printer
 from GUI import Application
 from filemonitor import Watcher
+from api import ApiHandler
 
 
 # Get printer id and API key from INI file
@@ -36,6 +37,7 @@ if __name__ == '__main__':
 
     watcher = Watcher(printers)
 
+    api_handler = ApiHandler(printers)
 
     # Asynchronous printer update logic
     def printer_update_async(printer):
@@ -56,6 +58,9 @@ if __name__ == '__main__':
             thread_list.append(threading.Thread(target=printer_update_async, args=(printer, ), daemon=True))
             thread_list[index].start()
 
+    # Create thread for API handler
+    api_thread = threading.Thread(target=api_handler.run, daemon=True)
+    api_thread.start()
 
     while True:
         # replaces app.mainloop()

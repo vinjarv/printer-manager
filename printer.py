@@ -79,3 +79,10 @@ class Printer:
         
     def get_temp_string(self):
         return "T: " + str(self.tool_temp) + "℃ - " + "B: " + str(self.bed_temp) + "℃"
+
+    def get_vars_as_dict(self):
+        return {"id":self.id, 
+        "state":self.octopi_status, 
+        "available":self.available, 
+        "hotend":self.tool_temp, 
+        "bed":self.bed_temp}
