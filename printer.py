@@ -6,6 +6,10 @@ class Printer:
     client = ()
     bed_temp, tool_temp = 0, 0
     available = False
+    job_name = ""
+    job_progress = 0
+    job_time_left = 0
+
     retryTimeout = 5 # Seconds between connection attempts when offline
     retryTimePrevious = 0 # Time at last connection attempt
 
@@ -28,12 +32,17 @@ class Printer:
         try:
             # get info from printer
             printerState = self.client.printer()
+            jobState = self.client.job_info()
 
             self.bed_temp = printerState["temperature"]["bed"]["actual"]
             self.tool_temp = printerState["temperature"]["tool0"]["actual"]
             self.octopi_status = printerState["state"]["text"]
             # print("Status: " + self.octopi_status)
             # print("Hotend: " + str(self.tool_temp) + "C\n" + "Bed: " + str(self.bed_temp) + "C")
+
+            self.job_name = jobState["job"]["file"]["path"]
+            self.job_progress = jobState["progress"]["completion"]
+            self.job_time_left = jobState["progress"]["printTimeLeft"]
 
             # check if printer is unable to receive new job
             if printerState["state"]["flags"]["ready"] == False:
@@ -85,4 +94,8 @@ class Printer:
         "state":self.octopi_status, 
         "available":self.available, 
         "hotend":self.tool_temp, 
-        "bed":self.bed_temp}
+        "bed":self.bed_temp,
+        "job_name":self.job_name,
+        "job_progress":self.job_progress,
+        "job_time_left_seconds":self.job_time_left
+        }
