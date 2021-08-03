@@ -72,7 +72,7 @@ class Printer:
     def autoConnect(self):
         currTime = time.time()
         if self.octopi_status == "Error" and currTime - self.retryTimeout >= self.retryTimePrevious:
-            print("Autoconnecting: ....")
+            print("Autoconnecting:")
             self.__connect()
             self.update()
             self.retryTimePrevious = currTime
