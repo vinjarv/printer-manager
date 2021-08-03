@@ -78,4 +78,4 @@ class Printer:
             self.retryTimePrevious = currTime
         
     def get_temp_string(self):
-        return "Nozzle: " + str(self.tool_temp) + "℃ - " + "Bed: " + str(self.bed_temp) + "℃"
+        return "T: " + str(self.tool_temp) + "℃ - " + "B: " + str(self.bed_temp) + "℃"
