@@ -1,12 +1,11 @@
-import tkinter as tk
-from tkinter import ttk
-import time, os
-from tkinter import font
-from tkinter.messagebox import askyesno
+import time
+import os
 import configparser
 import threading
 
 from printer import Printer
+import GUI
+from GUI import Application
 
 
 # Get printer id and API key from INI file
@@ -24,60 +23,6 @@ printer_conf = config["PRINTERS"]
 printer_connection_settings = []
 for printer in printer_conf:
     printer_connection_settings.append([printer, printer_conf[printer]])
-
-
-class Application(tk.Frame):
-    def __init__(self, master=None):
-        super().__init__(master)
-        self.master = master
-        self.pack()
-        self.create_widgets()
-
-    def create_widgets(self):
-        self.printer_frames = []
-        s = ttk.Style()
-        s.configure("TLabelframe.Label", font=("Helvetica", 16))
-
-        for i, line in enumerate(printer_connection_settings):
-            self.printer_frames.append(ttk.LabelFrame(content_frame, text=str(line[0]), padding=(3, 3, 3, 3)))
-            self.printer_frames[i].pack(side="left", padx=10, pady=10)
-
-            self.printer_frames[i].button = tk.Button(self.printer_frames[i])
-            self.printer_frames[i].button["text"] = "Build plate status"
-            self.printer_frames[i].button["command"] = lambda c=line[0]: self.handle_button_reset(c)
-            self.printer_frames[i].button.pack(side="top")
-
-            self.printer_frames[i].status_label = ttk.Label(self.printer_frames[i], text="Status:")
-            self.printer_frames[i].status_label.pack(side="top")
-
-            self.printer_frames[i].status_text = ttk.Label(self.printer_frames[i], text=printers[i].octopi_status)
-            self.printer_frames[i].status_text.pack(side="top")
-
-            self.printer_frames[i].temp_text = ttk.Label(self.printer_frames[i], text=printers[i].get_temp_string())
-            self.printer_frames[i].temp_text.pack(side="top")
-
-        # self.quit = tk.Button(self, text="QUIT", fg="red",
-        #                       command=self.master.destroy)
-        # self.quit.pack(side="bottom")
-
-    def handle_button_reset(self, id):
-        # get related printer
-        printer_index = 1e9 # set high to ensure error if number is wrong somehow
-        for index, line in enumerate(printer_connection_settings):
-            if id == line[0]:
-                printer_index = index
-        
-        if printers[printer_index].available:
-            # Turn off if flag is already enabled
-            printers[printer_index].available = False
-        else:
-            # Ask for confirmation to disable
-            confirmation = askyesno(title='Reset confirmation printer '+ id ,
-                                    message='Confirm that build plate is clear and clean on printer ' + id,
-                                    default='no')
-            if confirmation:
-                print("Reset printer " + id)
-                printers[printer_index].available = True
 
 
 class Watcher:
@@ -153,7 +98,6 @@ class Watcher:
                     print(e)
 
 
-
 if __name__ == '__main__':
 
     printers = [Printer(id=connection_settings[0], api=connection_settings[1]) for connection_settings in printer_connection_settings]
@@ -162,13 +106,7 @@ if __name__ == '__main__':
         print(printer.id + " ",end = "")
     print("")
 
-    root = tk.Tk()
-    root.title("3D Printer Manager")
-    img = tk.PhotoImage(file='icon.png')
-    root.tk.call('wm', 'iconphoto', root._w, img)
-    content_frame = ttk.Frame(root, padding=(10, 10, 10, 10))
-    content_frame.pack(side="top", padx=10, pady=10)
-    app = Application(master=root)
+    app = Application(printer_connection_settings, printers)
 
     watcher = Watcher()
 
@@ -197,25 +135,8 @@ if __name__ == '__main__':
         # replaces app.mainloop()
         app.update_idletasks()
         app.update()
-        
-            ## Set button color
-            # if printer.available:
-            #     app.buttons[index]["bg"] = 'green'
-            # elif printer.octopi_status == "Error":
-            #     app.buttons[index]["bg"] = 'grey'
-            # else:
-            #     app.buttons[index]["bg"] = 'red'
 
-        # Update texts
-        for i, frame in enumerate(app.printer_frames):
-            frame.status_text.config(text=printers[i].octopi_status)
-            frame.temp_text.config(text=printers[i].get_temp_string())
-        
-            if printers[i].available:
-                frame.button["bg"] = "green"
-            elif printers[i].octopi_status == "Error":
-                frame.button["bg"] = "grey"
-            else:
-                frame.button["bg"] = "red"
+        app.update_texts()
 
+# TODO: Add flask server for API
         watcher.update()
