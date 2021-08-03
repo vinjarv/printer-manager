@@ -1,6 +1,7 @@
 finished_gcode/
 input_gcode/
 Config/config.ini
+testing/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
