@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter.messagebox import askyesno
+from typing import Text
 
 class Application(tk.Frame):
     def __init__(self, printer_connection_settings, printers):
@@ -22,8 +23,9 @@ class Application(tk.Frame):
         s = ttk.Style()
         s.configure("TLabelframe.Label", font=("Helvetica", 16))
 
+        # TODO: Grid layout for GUI
         for i, line in enumerate(self.printer_connection_settings):
-            self.printer_frames.append(ttk.LabelFrame(self.content_frame, text=str(line[0]), padding=(3, 3, 3, 3)))
+            self.printer_frames.append(ttk.LabelFrame(self.content_frame, text=str(line[0]), padding=(3, 3, 3, 3), ))
             self.printer_frames[i].pack(side="left", padx=10, pady=10)
 
             self.printer_frames[i].button = tk.Button(self.printer_frames[i])
@@ -39,6 +41,15 @@ class Application(tk.Frame):
 
             self.printer_frames[i].temp_text = ttk.Label(self.printer_frames[i], text=self.printers[i].get_temp_string())
             self.printer_frames[i].temp_text.pack(side="top")
+
+            self.printer_frames[i].job_text = tk.Message(self.printer_frames[i], text=self.printers[i].job_name)
+            self.printer_frames[i].job_text.pack(side="top")
+
+            self.printer_frames[i].progressbar = ttk.Progressbar(self.printer_frames[i], maximum=100, value=self.printers[i].job_progress)
+            self.printer_frames[i].progressbar.pack(side="top")
+
+            self.printer_frames[i].eta_text = ttk.Label(self.printer_frames[i], text=self.format_time_remaining(self.printers[i].job_time_left))
+            self.printer_frames[i].eta_text.pack(side="top")
 
         # self.quit = tk.Button(self, text="QUIT", fg="red",
         #                       command=self.master.destroy)
@@ -63,7 +74,7 @@ class Application(tk.Frame):
                 print("Reset printer " + id)
                 self.printers[printer_index].available = True
 
-    def update_texts(self):
+    def update_printers(self):
         for i, frame in enumerate(self.printer_frames):
             frame.status_text.config(text=self.printers[i].octopi_status)
             frame.temp_text.config(text=self.printers[i].get_temp_string())
@@ -74,3 +85,22 @@ class Application(tk.Frame):
                 frame.button["bg"] = "grey"
             else:
                 frame.button["bg"] = "red"
+            
+            # Update job status fields
+            frame.job_text.config(text=self.printers[i].job_name)
+            frame.progressbar.config(value=self.printers[i].job_progress)
+            frame.eta_text.config(text=self.format_time_remaining(self.printers[i].job_time_left))
+
+    def format_time_remaining(self, seconds):
+        if seconds == None:
+            seconds = 0
+        seconds = int(seconds)
+        d = int(seconds/(60*60*24)) 
+        h = int(seconds/(60*60) % 24) # up to 24
+        m = int(seconds/60 % 60) # up to 60
+        out = "ETA: "
+        if d > 0:
+            out += str(d).zfill(2) + "D"
+        out += str(h).zfill(2) + "H"
+        out += str(m).zfill(2) + "M"
+        return out

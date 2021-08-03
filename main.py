@@ -68,6 +68,6 @@ if __name__ == '__main__':
         app.update_idletasks()
         app.update()
 
-        app.update_texts()
+        app.update_printers()
 
         watcher.update()
