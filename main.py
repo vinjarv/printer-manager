@@ -1,6 +1,7 @@
 import time
 import configparser
 import threading
+import subprocess
 
 from printer import Printer
 from GUI import Application
@@ -24,7 +25,6 @@ printer_connection_settings = []
 for printer in printer_conf:
     printer_connection_settings.append([printer, printer_conf[printer]])
 
-
 if __name__ == '__main__':
 
     printers = [Printer(id=connection_settings[0], api=connection_settings[1]) for connection_settings in printer_connection_settings]
@@ -34,9 +34,7 @@ if __name__ == '__main__':
     print("")
 
     app = Application(printer_connection_settings, printers)
-
     watcher = Watcher(printers)
-
     api_handler = ApiHandler(printers)
 
     # Asynchronous printer update logic
@@ -61,6 +59,9 @@ if __name__ == '__main__':
     # Create thread for Flask API handler
     api_thread = threading.Thread(target=api_handler.run, daemon=True)
     api_thread.start()
+
+    # Start autoslicer
+    subprocess.Popen(["../Autoslicer_testing/venv/scripts/python.exe", "../Autoslicer_testing/fileMonitor.py"])
 
     while True:
         # replaces app.mainloop()
