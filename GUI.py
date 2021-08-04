@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter.constants import ACTIVE, DISABLED, NORMAL
 from tkinter.messagebox import askyesno
 
 class Application(tk.Frame):
@@ -26,7 +27,6 @@ class Application(tk.Frame):
         s = ttk.Style()
         s.configure("TLabelframe.Label", font=("Helvetica", 16))
 
-        # TODO: Grid layout for GUI
         for i, line in enumerate(self.printer_connection_settings):
             self.printer_frames.append(ttk.LabelFrame(self.content_frame, text=str(line[0]), padding=(3, 3, 3, 3), ))
             self.printer_frames[i].grid(row=i//4, column=i%4)
@@ -106,9 +106,10 @@ class Application(tk.Frame):
                 frame.button["bg"] = "red"
             
             # Update job status fields
-            #frame.job_text.config(text=self.printers[i].job_name)
+            frame.job_text.config(state=NORMAL)
             frame.job_text.delete("1.0", "2.0")
             frame.job_text.insert("end", str(self.printers[i].job_name))
+            frame.job_text.config(state=DISABLED)
             frame.progressbar.config(value=self.printers[i].job_progress)
             frame.eta_text.config(text=self.format_time_remaining(self.printers[i].job_time_left))
 
