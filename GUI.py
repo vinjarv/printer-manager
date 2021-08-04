@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter.messagebox import askyesno
-from typing import Sized
 
 class Application(tk.Frame):
     def __init__(self, printer_connection_settings, printers):
@@ -12,11 +11,15 @@ class Application(tk.Frame):
         img = tk.PhotoImage(file='icon.png')
         self.root.tk.call('wm', 'iconphoto', self.root._w, img)
         self.content_frame = ttk.Frame(self.root, padding=(10, 10, 10, 10))
-        self.content_frame.pack(side="top", padx=10, pady=10)
+        self.content_frame.pack(side="top", padx=10, pady=10, fill="both")
         super().__init__(self.root)
         self.master = self.root
-        self.pack()
         self.create_widgets()
+
+        # Set up resize of widgets on window size change, dynamic grid
+        self.content_frame.columns = None
+        self.root.bind("<Configure>", lambda resizecontent:self.resize_grid(self.content_frame))
+
 
     def create_widgets(self):
         self.printer_frames = []
@@ -26,7 +29,7 @@ class Application(tk.Frame):
         # TODO: Grid layout for GUI
         for i, line in enumerate(self.printer_connection_settings):
             self.printer_frames.append(ttk.LabelFrame(self.content_frame, text=str(line[0]), padding=(3, 3, 3, 3), ))
-            self.printer_frames[i].pack(side="left", padx=10, pady=10)
+            self.printer_frames[i].grid(row=i//4, column=i%4)
 
             self.printer_frames[i].button = tk.Button(self.printer_frames[i], width=15, height=3)
             self.printer_frames[i].button["text"] = "Build plate status"
@@ -55,6 +58,22 @@ class Application(tk.Frame):
         # self.quit = tk.Button(self, text="QUIT", fg="red",
         #                       command=self.master.destroy)
         # self.quit.pack(side="bottom")
+
+    def resize_grid(self, frame):
+        width = frame.winfo_width()
+        slaves = frame.grid_slaves()
+        slaves.reverse() # get widgets in correct, chronologic order
+        max_width = max(slave.winfo_width() for slave in slaves)
+        cols = width // max_width
+        print(max_width, width)
+        print(cols)
+        if cols == frame.columns: # Don't regrid if columns are unchanged
+            return
+        print(max_width, width)
+        for i, slave in enumerate(slaves):
+            slave.grid_forget()
+            slave.grid(row=i//cols, column=i%cols)
+        frame.columns = cols
 
     def handle_button_reset(self, id):
         # get related printer
