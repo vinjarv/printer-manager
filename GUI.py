@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter.messagebox import askyesno
-from typing import Text
+from typing import Sized
 
 class Application(tk.Frame):
     def __init__(self, printer_connection_settings, printers):
@@ -28,13 +28,10 @@ class Application(tk.Frame):
             self.printer_frames.append(ttk.LabelFrame(self.content_frame, text=str(line[0]), padding=(3, 3, 3, 3), ))
             self.printer_frames[i].pack(side="left", padx=10, pady=10)
 
-            self.printer_frames[i].button = tk.Button(self.printer_frames[i])
+            self.printer_frames[i].button = tk.Button(self.printer_frames[i], width=15, height=3)
             self.printer_frames[i].button["text"] = "Build plate status"
             self.printer_frames[i].button["command"] = lambda c=line[0]: self.handle_button_reset(c)
             self.printer_frames[i].button.pack(side="top")
-
-            self.printer_frames[i].status_label = ttk.Label(self.printer_frames[i], text="Status:")
-            self.printer_frames[i].status_label.pack(side="top")
 
             self.printer_frames[i].status_text = ttk.Label(self.printer_frames[i], text=self.printers[i].octopi_status)
             self.printer_frames[i].status_text.pack(side="top")
@@ -42,11 +39,15 @@ class Application(tk.Frame):
             self.printer_frames[i].temp_text = ttk.Label(self.printer_frames[i], text=self.printers[i].get_temp_string())
             self.printer_frames[i].temp_text.pack(side="top")
 
-            self.printer_frames[i].job_text = tk.Message(self.printer_frames[i], text=self.printers[i].job_name)
-            self.printer_frames[i].job_text.pack(side="top")
 
-            self.printer_frames[i].progressbar = ttk.Progressbar(self.printer_frames[i], maximum=100, value=self.printers[i].job_progress)
-            self.printer_frames[i].progressbar.pack(side="top")
+            self.printer_frames[i].job_text = tk.Text(self.printer_frames[i], width=15, height=1, wrap="none")
+            self.printer_frames[i].job_text.pack(side="top")
+            self.printer_frames[i].job_text_scroll = ttk.Scrollbar(self.printer_frames[i], orient="horizontal", 
+                command=self.printer_frames[i].job_text.xview)
+            self.printer_frames[i].job_text_scroll.pack(side="top", fill="x")
+
+            self.printer_frames[i].progressbar = ttk.Progressbar(self.printer_frames[i], value=self.printers[i].job_progress)
+            self.printer_frames[i].progressbar.pack(side="top", fill="x")
 
             self.printer_frames[i].eta_text = ttk.Label(self.printer_frames[i], text=self.format_time_remaining(self.printers[i].job_time_left))
             self.printer_frames[i].eta_text.pack(side="top")
@@ -87,7 +88,9 @@ class Application(tk.Frame):
                 frame.button["bg"] = "red"
             
             # Update job status fields
-            frame.job_text.config(text=self.printers[i].job_name)
+            #frame.job_text.config(text=self.printers[i].job_name)
+            frame.job_text.delete("1.0", "2.0")
+            frame.job_text.insert("end", str(self.printers[i].job_name))
             frame.progressbar.config(value=self.printers[i].job_progress)
             frame.eta_text.config(text=self.format_time_remaining(self.printers[i].job_time_left))
 
