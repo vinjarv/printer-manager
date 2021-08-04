@@ -65,11 +65,10 @@ class Application(tk.Frame):
         slaves.reverse() # get widgets in correct, chronologic order
         max_width = max(slave.winfo_width() for slave in slaves)
         cols = width // max_width
-        print(max_width, width)
-        print(cols)
+        if cols == 0:
+            cols = 1 # Avoid division by zero
         if cols == frame.columns: # Don't regrid if columns are unchanged
             return
-        print(max_width, width)
         for i, slave in enumerate(slaves):
             slave.grid_forget()
             slave.grid(row=i//cols, column=i%cols)
