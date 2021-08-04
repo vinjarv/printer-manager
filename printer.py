@@ -21,7 +21,7 @@ class Printer:
     ]
 
     def __init__(self, id, api):
-        self.hostname = "http://octopi" + id + ".local"
+        self.hostname = "http://octopi" + id
         self.apikey = api
         self.id = id
         
