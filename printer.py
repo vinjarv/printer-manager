@@ -24,10 +24,7 @@ class Printer:
         self.hostname = "http://octopi" + id + ".local"
         self.apikey = api
         self.id = id
-        self.__connect()
-        self.update()
         
-
     def update(self):
         try:
             # get info from printer
@@ -47,7 +44,6 @@ class Printer:
             # check if printer is unable to receive new job
             if printerState["state"]["flags"]["ready"] == False:
                 self.available = False
-
 
             # Write message to printer LCD
             LCD_message = "Connected "
@@ -81,7 +77,7 @@ class Printer:
     def autoConnect(self):
         currTime = time.time()
         if self.octopi_status == "Error" and currTime - self.retryTimeout >= self.retryTimePrevious:
-            print("Autoconnecting:")
+            print("Autoconnecting printer " + str(self.id) + ":")
             self.__connect()
             self.update()
             self.retryTimePrevious = currTime
