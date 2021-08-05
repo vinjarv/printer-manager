@@ -1,8 +1,10 @@
 import os
 
 class Watcher:
-    INPUT_PATH = ".\\input_gcode\\"
-    FINISHED_PATH = ".\\finished_gcode\\"
+
+    # TODO: Get from config
+    INPUT_PATH = os.path.join(".", "input_gcode", "")
+    FINISHED_PATH = os.path.join(".", "finished_gcode", "")
 
     def __init__(self, printers):
         self.printers = printers
