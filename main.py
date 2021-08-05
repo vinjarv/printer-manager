@@ -1,3 +1,4 @@
+import os
 import time
 import configparser
 import threading
@@ -18,9 +19,8 @@ from api import ApiHandler
 #
 config = configparser.ConfigParser()
 config.read("./Config/config.ini")
+
 printer_conf = config["PRINTERS"]
-
-
 printer_connection_settings = []
 for printer in printer_conf:
     printer_connection_settings.append([printer, printer_conf[printer]])
@@ -61,7 +61,11 @@ if __name__ == '__main__':
     api_thread.start()
 
     # Start autoslicer
-    subprocess.Popen(["../Autoslicer_testing/venv/scripts/python.exe", "../Autoslicer_testing/fileMonitor.py"])
+    autoslicer_path = config["PATHS"]["autoslicer_path"]
+    venv_path = config["PATHS"]["venv_path"]
+    python_path = os.path.join(autoslicer_path, venv_path, "python")
+    filemonitor_path = os.path.join(autoslicer_path, "fileMonitor.py")
+    subprocess.Popen([python_path, filemonitor_path])
 
     while True:
         # replaces app.mainloop()
