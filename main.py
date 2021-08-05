@@ -26,16 +26,16 @@ printer_connection_settings = []
 for printer in printer_conf:
     printer_connection_settings.append([printer, printer_conf[printer]])
 
-# Check if code should run with GUI
+# Check if code should run with GUI - script needs to run with > python main.py -g
 GUI_FLAG = "-g" in sys.argv
 
 if __name__ == '__main__':
 
     printers = [Printer(id=connection_settings[0], api=connection_settings[1]) for connection_settings in printer_connection_settings]
-    print("Printers online: ", end="")
+    start_str = "Printers online: "
     for printer in printers:
-        print(printer.id + " ",end = "")
-    print("")
+        start_str += str(printer.id) + " "
+    print(start_str)
 
     if GUI_FLAG:
         app = Application(printer_connection_settings, printers)
