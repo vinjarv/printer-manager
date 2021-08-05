@@ -3,6 +3,7 @@ import time
 import configparser
 import threading
 import subprocess
+import sys
 
 from printer import Printer
 from GUI import Application
@@ -25,6 +26,9 @@ printer_connection_settings = []
 for printer in printer_conf:
     printer_connection_settings.append([printer, printer_conf[printer]])
 
+# Check if code should run with GUI
+GUI_FLAG = "-g" in sys.argv
+
 if __name__ == '__main__':
 
     printers = [Printer(id=connection_settings[0], api=connection_settings[1]) for connection_settings in printer_connection_settings]
@@ -33,7 +37,9 @@ if __name__ == '__main__':
         print(printer.id + " ",end = "")
     print("")
 
-    app = Application(printer_connection_settings, printers)
+    if GUI_FLAG:
+        app = Application(printer_connection_settings, printers)
+
     watcher = Watcher(printers)
     api_handler = ApiHandler(printers)
 
@@ -68,10 +74,11 @@ if __name__ == '__main__':
     subprocess.Popen([python_path, filemonitor_path])
 
     while True:
-        # replaces app.mainloop()
-        app.update_idletasks()
-        app.update()
+        if GUI_FLAG:
+            # replaces app.mainloop()
+            app.update_idletasks()
+            app.update()
 
-        app.update_printers()
+            app.update_printers()
 
         watcher.update()
