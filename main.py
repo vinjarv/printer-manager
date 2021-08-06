@@ -68,8 +68,11 @@ if __name__ == '__main__':
 
     # Start autoslicer
     autoslicer_path = config["PATHS"]["autoslicer_path"]
-    venv_path = config["PATHS"]["venv_path"]
-    python_path = os.path.join(autoslicer_path, venv_path, "python")
+    # Find venv python path
+    if os.name == "nt":
+        python_path = os.path.join(autoslicer_path, "venv", "Scripts", "python")
+    else:
+        python_path = os.path.join(autoslicer_path, "venv", "bin", "python")
     filemonitor_path = os.path.join(autoslicer_path, "fileMonitor.py")
     subprocess.Popen([python_path, filemonitor_path])
 
