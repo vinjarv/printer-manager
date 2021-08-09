@@ -1,13 +1,10 @@
 import os
 
 class Watcher:
-
-    # TODO: Get from config
-    INPUT_PATH = os.path.join(".", "input_gcode", "")
-    FINISHED_PATH = os.path.join(".", "finished_gcode", "")
-
-    def __init__(self, printers):
+    def __init__(self, printers, input_path, finished_path):
         self.printers = printers
+        self.INPUT_PATH = input_path
+        self.FINISHED_PATH = finished_path
         print("Watching " + self.INPUT_PATH)
 
     ## Format any string to ascii without whitespace
