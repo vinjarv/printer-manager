@@ -29,7 +29,6 @@ for printer in printer_conf:
 # Check if code should run with GUI - script needs to run with > python main.py -g
 GUI_FLAG = "-g" in sys.argv
 
-
 printers = [Printer(id=connection_settings[0], api=connection_settings[1]) for connection_settings in printer_connection_settings]
 start_str = "Printers online: "
 for printer in printers:
@@ -78,8 +77,11 @@ api_thread.start()
 
 # Start autoslicer
 autoslicer_path = config["PATHS"]["autoslicer_path"]
-venv_path = config["PATHS"]["venv_path"]
-python_path = os.path.join(autoslicer_path, venv_path, "python")
+# Find venv python path
+if os.name == "nt":
+    python_path = os.path.join(autoslicer_path, "venv", "Scripts", "python")
+else:
+    python_path = os.path.join(autoslicer_path, "venv", "bin", "python")
 filemonitor_path = os.path.join(autoslicer_path, "fileMonitor.py")
 subprocess.Popen([python_path, filemonitor_path])
 
