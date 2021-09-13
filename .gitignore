@@ -1,5 +1,6 @@
-finished_gcode/
-input_gcode/
+input_files/
+finished_files/
+error_files/
 Config/config.ini
 testing/
 
