@@ -7,7 +7,7 @@ import sys
 
 from printer import Printer
 from GUI import Application
-from filemonitor import Watcher
+from filehandler import Watcher
 from api import ApiHandler
 
 
@@ -18,6 +18,7 @@ from api import ApiHandler
 # 01 = 1234567890ABCDEF
 # 02 = 1234567890ABCDEF
 #
+
 config = configparser.ConfigParser()
 config.read("./Config/config.ini")
 
@@ -26,8 +27,9 @@ printer_connection_settings = []
 for printer in printer_conf:
     printer_connection_settings.append([printer, printer_conf[printer]])
 
-# Check if code should run with GUI - script needs to run with > python main.py -g
-GUI_FLAG = "-g" in sys.argv
+
+# Check if code should run without GUI - if script is run with > python main.py -h, no GUI will be shown
+HEADLESS_FLAG = "-h" in sys.argv
 
 printers = [Printer(id=connection_settings[0], api=connection_settings[1]) for connection_settings in printer_connection_settings]
 start_str = "Printers online: "
@@ -35,19 +37,11 @@ for printer in printers:
     start_str += str(printer.id) + " "
 print(start_str)
 
-if GUI_FLAG:
+if not HEADLESS_FLAG:
     app = Application(printer_connection_settings, printers)
 
 # Initialize file/job handling
-GCODE_INPUT_PATH = config["PATHS"]["input_folder"]
-GCODE_OUTPUT_PATH = config["PATHS"]["output_folder"]
-if not os.path.exists(GCODE_INPUT_PATH):
-    print("No input folder found, creating " + GCODE_INPUT_PATH)
-    os.mkdir(GCODE_INPUT_PATH)
-if not os.path.exists(GCODE_OUTPUT_PATH):
-    print("No output folder found, creating " + GCODE_OUTPUT_PATH)
-    os.mkdir(GCODE_OUTPUT_PATH)
-watcher = Watcher(printers, GCODE_INPUT_PATH, GCODE_OUTPUT_PATH)
+watcher = Watcher(printers, config)
 
 # Initialize Flask API
 api_handler = ApiHandler(printers)
@@ -76,17 +70,18 @@ api_thread = threading.Thread(target=api_handler.run, daemon=True)
 api_thread.start()
 
 # Start autoslicer
-autoslicer_path = config["PATHS"]["autoslicer_path"]
-# Find venv python path
-if os.name == "nt":
-    python_path = os.path.join(autoslicer_path, "venv", "Scripts", "python")
-else:
-    python_path = os.path.join(autoslicer_path, "venv", "bin", "python")
-filemonitor_path = os.path.join(autoslicer_path, "fileMonitor.py")
-subprocess.Popen([python_path, filemonitor_path])
+## TODO: New autoslicer implementation
+# autoslicer_path = config["PATHS"]["autoslicer_path"]
+# # Find venv python path
+# if os.name == "nt":
+#     python_path = os.path.join(autoslicer_path, "venv", "Scripts", "python")
+# else:
+#     python_path = os.path.join(autoslicer_path, "venv", "bin", "python")
+# filemonitor_path = os.path.join(autoslicer_path, "fileMonitor.py")
+# subprocess.Popen([python_path, filemonitor_path])
 
 while True:
-    if GUI_FLAG:
+    if not HEADLESS_FLAG:
         # replaces app.mainloop()
         app.update_idletasks()
         app.update()
@@ -94,3 +89,5 @@ while True:
         app.update_printers()
 
     watcher.update()
+
+# 

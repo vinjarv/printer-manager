@@ -1,0 +1,3 @@
+[submodule "autoslicer"]
+	path = autoslicer
+	url = https://github.com/vinjarv/autoslicer
